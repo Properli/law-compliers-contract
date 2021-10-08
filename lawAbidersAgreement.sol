@@ -32,7 +32,7 @@ contract lawAbidersAgreement {
      * @param fromAddress Ethereum address from where the subscription request originated
      * @param subscriberId a unique identifier that identifies the subscriber behind/together with/to the Ethereum address
      */
-    //event NewSubscription(address indexed fromAddress, string indexed subscriberId);
+    event NewSubscription(address indexed fromAddress, string indexed subscriberId);
     
     /**
      * @dev Set values for constants CREATOR_ID, WATERMARK, and LICENSE
@@ -55,7 +55,7 @@ contract lawAbidersAgreement {
         // add subscription to contract storage
         subscritionList.push(Subscription(msg.sender, subscriberId));
         // publicly announce subscription
-        //emit NewSubscription(msg.sender, subscriberId);
+        emit NewSubscription(msg.sender, subscriberId);
         
         return Subscription(msg.sender, subscriberId);
     }
