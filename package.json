@@ -1,0 +1,23 @@
+{
+  "name": "law-abiders-contract",
+  "version": "0.0.1",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jblossey/law-abiders-contract.git"
+  },
+  "author": "Jannis Blossey",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/jblossey/law-abiders-contract/issues"
+  },
+  "homepage": "https://github.com/jblossey/law-abiders-contract#readme",
+  "dependencies": {
+    "@openzeppelin/contracts-upgradeable": "^4.3.2",
+    "truffle": "^5.4.14"
+  },
+  "devDependencies": {
+    "@openzeppelin/truffle-upgrades": "^1.9.1",
+    "ganache-cli": "^6.12.2"
+  }
+}
