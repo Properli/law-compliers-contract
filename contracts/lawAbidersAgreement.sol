@@ -55,7 +55,7 @@ contract lawAbidersAgreement is Initializable {
      */
     function agreeToTermsAndSubscribe(uint watermark, string calldata subscriberId) external returns (DigitalGoodCopyrightProtectionCollection memory, Subscription[] memory) {
         // check if digital good even exists
-        require(copyrightRegistrations[watermark].watermark != 0);
+        require(copyrightRegistrations[watermark].watermark != 0, "The digital good you are trying to subscribe to was not yet registered. Make sure the watermark is calculated correctly or contact the creator.");
         // add subscription to contract storage
         subscriptions[watermark]
             .push(
