@@ -3,6 +3,7 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+// TODO: implement roles -> https://docs.openzeppelin.com/contracts/4.x/api/access#AccessControl
 
 /**
  * @title Law Abiders Agreement
@@ -15,64 +16,77 @@ contract lawAbidersAgreement is Initializable {
      */
     struct Subscription {
         address subscriberAddress;
-        string subscriberId;
+        bytes subscriberId;
     }
 
     /**
      * @dev data structure that stores all license agreements to creators' digital goods with multiple subscribers
      */
-    struct DigitalGoodCopyrightProtectionCollection {
-        uint creatorId;
-        uint watermark;
+    struct DigitalCopyrightProtectionCollection {
+        uint saltIndex;
+        uint longAddressSalt;
+        bytes creatorId;
         string license;
+        Subscription[] subscriptions;
     }
-    
-    mapping (uint => DigitalGoodCopyrightProtectionCollection) private copyrightRegistrations;
 
-    mapping (uint => Subscription[]) subscriptions;
+    /**
+     * @dev TODO
+     * Iterable mapping adapted from https://docs.soliditylang.org/en/latest/types.html#iterable-mappings 
+     */
+    struct IterableCopyrightRegistrations {
+        mapping (uint => DigitalCopyrightProtectionCollection) copyrightRegistrations;
+        uint[] longSalts;
+        uint size;
+    }
+
+    /**
+     * @dev TODO
+     */
+    mapping (uint => IterableCopyrightRegistrations) private hashCollisionResolver;
 
     /**
      * @param fromAddress Ethereum address from where the subscription request originated
      * @param subscriberId a unique identifier that identifies the subscriber behind/together with/to the Ethereum address
      */
-    event NewSubscription(address indexed fromAddress, string indexed subscriberId);
+    event NewSubscription(address indexed fromAddress, bytes indexed subscriberId);
 
     function initialize() public initializer {}
 
-    function registerDigitalGood(uint creatorId, uint watermark, string calldata license) external returns (DigitalGoodCopyrightProtectionCollection memory) {
-        copyrightRegistrations[watermark] = DigitalGoodCopyrightProtectionCollection({
-            creatorId: creatorId,
-            watermark: watermark,
-            license: license
-        });
+    function registerDigitalGood(uint shortAddress, uint longAddress, uint longAddressSalt, bytes calldata creatorId, string calldata license) external returns (DigitalCopyrightProtectionCollection memory) {
+        uint saltIndex = hashCollisionResolver[shortAddress].copyrightRegistrations[longAddress].saltIndex;
+        require(saltIndex == 0, "Encountered a hash collision. The probability for this is smaller than 1 in a trillion. Just change one tiny thing in your work, try again, and you should be good. If not, start playing the lottery.");
+        DigitalCopyrightProtectionCollection storage dcpc = hashCollisionResolver[shortAddress].copyrightRegistrations[longAddress];
+        dcpc.longAddressSalt = longAddressSalt;
+        dcpc.creatorId = creatorId;
+        dcpc.license = license;
+        saltIndex = hashCollisionResolver[shortAddress].longSalts.length;
+        hashCollisionResolver[shortAddress].longSalts.push();
+        dcpc.saltIndex = saltIndex + 1;
+        hashCollisionResolver[shortAddress].longSalts[saltIndex] = longAddress;
+        hashCollisionResolver[shortAddress].size++;     
+        return dcpc;
+    }
 
-        return copyrightRegistrations[watermark];
+    function readSalts(uint shortAddress) external view returns (uint[] memory longSalts) {
+        return hashCollisionResolver[shortAddress].longSalts;
     }
     
     /**
      * @dev Saves and publicly announces aggreement to license terms of digital good
      * @param subscriberId unique identifier of subscriber for off-chain accountability
      */
-    function agreeToTermsAndSubscribe(uint watermark, string calldata subscriberId) external returns (DigitalGoodCopyrightProtectionCollection memory, Subscription[] memory) {
+    function agreeToTermsAndSubscribe(uint shortAddress, uint longAddress, bytes calldata subscriberId) external returns (DigitalCopyrightProtectionCollection memory, Subscription memory) {
         // check if digital good even exists
-        require(copyrightRegistrations[watermark].watermark != 0, "The digital good you are trying to subscribe to was not yet registered. Make sure the watermark is calculated correctly or contact the creator.");
+        require(hashCollisionResolver[shortAddress].copyrightRegistrations[longAddress].saltIndex != 0, "The digital good you are trying to subscribe to was not yet registered. Make sure the watermark is calculated correctly or contact the creator.");
         // add subscription to contract storage
-        subscriptions[watermark]
-            .push(
-                Subscription(
-                    msg.sender,
-                    subscriberId
-                )
-            );
+        hashCollisionResolver[shortAddress].copyrightRegistrations[longAddress].subscriptions.push() = Subscription(msg.sender, subscriberId);
         // publicly announce subscription
         emit NewSubscription(msg.sender, subscriberId);
-        return (copyrightRegistrations[watermark], subscriptions[watermark]);
-    }
-    
-    /**
-     * @dev get all subscriptions of this contract
-     */
-    function readSubscriptions(uint watermark) external view returns(DigitalGoodCopyrightProtectionCollection memory, Subscription[] memory) {
-        return (copyrightRegistrations[watermark], subscriptions[watermark]);
+        return (
+            hashCollisionResolver[shortAddress].copyrightRegistrations[longAddress],
+            hashCollisionResolver[shortAddress].copyrightRegistrations[longAddress].subscriptions[
+                hashCollisionResolver[shortAddress].copyrightRegistrations[longAddress].subscriptions.length - 1
+            ]);
     }
 }
