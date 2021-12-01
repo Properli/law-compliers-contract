@@ -71,6 +71,14 @@ contract lawAbidersAgreement is Initializable {
     function readSalts(uint shortAddress) external view returns (uint[] memory longSalts) {
         return hashCollisionResolver[shortAddress].longSalts;
     }
+
+    function readContract(uint shortAddress, uint longAddress) external view returns (DigitalCopyrightProtectionCollection memory dcpc) {
+        return hashCollisionResolver[shortAddress].copyrightRegistrations[longAddress];
+    }
+
+    function readSubscriptions(uint shortAddress, uint longAddress) external view returns (Subscription[] memory subs) {
+        return hashCollisionResolver[shortAddress].copyrightRegistrations[longAddress].subscriptions;
+    }
     
     /**
      * @dev Saves and publicly announces aggreement to license terms of digital good
