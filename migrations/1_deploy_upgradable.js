@@ -1,9 +1,9 @@
 
 const { deployProxy } = require('@openzeppelin/truffle-upgrades');
 
-const lawAbidersAgreement = artifacts.require("lawAbidersAgreement");
+const lawCompliersAgreement = artifacts.require("LawCompliersAgreement");
 
 module.exports = async function (deployer) {
-  const instance = await deployProxy(lawAbidersAgreement, { deployer });
+  const instance = await deployProxy(lawCompliersAgreement, { deployer });
   console.log('Deployed', instance.address);
 };

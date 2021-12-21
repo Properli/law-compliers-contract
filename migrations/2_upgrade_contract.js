@@ -1,10 +1,10 @@
 const { upgradeProxy } = require('@openzeppelin/truffle-upgrades');
 
-const lawAbidersAgreement = artifacts.require('lawAbidersAgreement');
-const new_lawAbidersAgreement = artifacts.require('lawAbidersAgreement'); // TODO
+const lawCompliersAgreement = artifacts.require('LawCompliersAgreement');
+const new_lawCompliersAgreement = artifacts.require('LawCompliersAgreement'); // TODO
 
 module.exports = async function (deployer) {
-  const existing = await lawAbidersAgreement.deployed();
-  const instance = await upgradeProxy(existing.address, new_lawAbidersAgreement, { deployer });
+  const existing = await lawCompliersAgreement.deployed();
+  const instance = await upgradeProxy(existing.address, new_lawCompliersAgreement, { deployer });
   console.log("Upgraded", instance.address);
 };
