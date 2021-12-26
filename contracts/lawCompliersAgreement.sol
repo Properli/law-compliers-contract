@@ -6,8 +6,8 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 // TODO: implement roles -> https://docs.openzeppelin.com/contracts/4.x/api/access#AccessControl
 
 /**
- * @title Law Abiders Agreement
- * @dev Publish license agreement offering for single digital good
+ * @title Law Compliers Agreement
+ * @dev Collection of published license agreement offerings for digital goods
  */
 contract LawCompliersAgreement is Initializable {
     
@@ -32,6 +32,12 @@ contract LawCompliersAgreement is Initializable {
 
     function initialize() public initializer {}
 
+    /**
+     * @dev initializes an entry in the copyrightRegistrations mapping. Used to register a digital good through its watermark with its license, and the creator's ID.
+     * @param watermark the unique identifier that connects a license agreement to a digital good
+     * @param creatorId the unique identifier that connects an agreement to its originator
+     * @param license the license under which the creator publishes the digital good
+     */
     function registerDigitalGood(uint watermark, string calldata creatorId, string calldata license) external returns (DigitalCopyrightProtectionCollection memory) {
         require(bytes(copyrightRegistrations[watermark].creatorId).length == 0, "Encountered a hash collision. Aborting operation.");
         DigitalCopyrightProtectionCollection storage dcpc = copyrightRegistrations[watermark];
@@ -40,11 +46,23 @@ contract LawCompliersAgreement is Initializable {
         return dcpc;
     }
 
+    /**
+     * @dev return the digital license agreement of a watermark
+     * @param watermark the unique identifier of a license agreement
+     */
     function readAgreement(uint watermark) external view returns (DigitalCopyrightProtectionCollection memory dcpc) {
+        // check if digital good even exists
+        require(bytes(copyrightRegistrations[watermark].creatorId).length != 0, "The digital good you are trying to subscribe to was not yet registered. Make sure the watermark is calculated correctly or contact the creator.");
         return copyrightRegistrations[watermark];
     }
 
+    /**
+     * @dev return the array of subscriptions of a registered digital good
+     * @param watermark the unique identifier that is used to resolve the correct agreement
+     */
     function readSubscriptions(uint watermark) external view returns (Subscription[] memory subs) {
+        // check if digital good even exists
+        require(bytes(copyrightRegistrations[watermark].creatorId).length != 0, "The digital good you are trying to subscribe to was not yet registered. Make sure the watermark is calculated correctly or contact the creator.");
         return copyrightRegistrations[watermark].subscriptions;
     }
     
