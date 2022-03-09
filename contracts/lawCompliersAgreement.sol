@@ -12,7 +12,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 contract LawCompliersAgreement is Initializable {
     
     /**
-     * @dev a subscription consists of the subscriber's ethereum address and a unique identifier that identifies the subscriber off-chain
+     * @dev a signature consists of the signers's ethereum address and a unique identifier that identifies the signer off-chain
      */
     struct Signature {
         address signerAddress;
@@ -20,7 +20,7 @@ contract LawCompliersAgreement is Initializable {
     }
 
     /**
-     * @dev data structure that stores all license agreements to creators' digital goods with multiple subscribers
+     * @dev data structure that stores all license agreements to creators' digital goods with multiple signers
      */
     struct LicenseAgreementCollection {
         string creatorId;
@@ -57,7 +57,7 @@ contract LawCompliersAgreement is Initializable {
     }
 
     /**
-     * @dev return the array of subscriptions of a registered digital good
+     * @dev return the array of signatures of a registered digital good
      * @param watermark the unique identifier that is used to resolve the correct agreement
      */
     function readSignatures(uint watermark) external view returns (Signature[] memory sigs) {
@@ -68,7 +68,7 @@ contract LawCompliersAgreement is Initializable {
     
     /**
      * @dev Saves and publicly announces aggreement to license terms of digital good
-     * @param subscriberId unique identifier of subscriber for off-chain accountability
+     * @param signerId unique identifier of signer for off-chain accountability
      */
     function agreeToTermsAndSubscribe(uint watermark, string calldata signerId) external returns (LicenseAgreementCollection memory, Signature memory) {
         // check if digital good even exists
