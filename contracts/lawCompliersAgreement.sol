@@ -70,7 +70,7 @@ contract LawCompliersAgreement is Initializable {
      * @dev Saves and publicly announces aggreement to license terms of digital good
      * @param signerId unique identifier of signer for off-chain accountability
      */
-    function agreeToTermsAndSubscribe(uint watermark, string calldata signerId) external returns (LicenseAgreementCollection memory, Signature memory) {
+    function agreeToTermsAndSign(uint watermark, string calldata signerId) external returns (LicenseAgreementCollection memory, Signature memory) {
         // check if digital good even exists
         require(bytes(copyrightRegistrations[watermark].creatorId).length != 0, "The digital good you are trying to subscribe to was not yet registered. Make sure the watermark is calculated correctly or contact the creator.");
         // add subscription to contract storage
